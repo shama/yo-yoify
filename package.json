@@ -1,0 +1,36 @@
+{
+  "name": "yo-yoify",
+  "version": "1.0.0",
+  "description": "Transform yo-yo or bel template strings into pure and fast document calls",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo index.js",
+    "test": "standard && node test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shama/yo-yoify"
+  },
+  "keywords": [
+    "bel",
+    "elements",
+    "browserify",
+    "transform"
+  ],
+  "author": "Kyle Robinson Young <kyle@dontkry.com> (http://dontkry.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shama/yo-yoify/issues"
+  },
+  "homepage": "https://github.com/shama/yo-yoify",
+  "dependencies": {
+    "falafel": "^1.2.0",
+    "hyperx": "^2.0.2",
+    "through2": "^2.0.1"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "standard": "^6.0.8",
+    "tape": "^4.5.1"
+  }
+}
