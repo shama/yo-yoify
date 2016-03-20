@@ -9,8 +9,12 @@ var FIXTURE = path.join(__dirname, 'fixture.js')
 test('works', function (t) {
   t.plan(1)
   var src = `var bel = require('bel')
-  var msg = 'hello!'
-  var element = bel\`<div>\${msg}</div>\``
+  module.exports = function (data) {
+    var className = 'test'
+    return bel\`<div class="\${className}">
+      <h1>\${data}</h1>
+    </div>\`
+  }`
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false
@@ -19,7 +23,6 @@ test('works', function (t) {
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
     t.ifError(err)
-    debugger
     vm.runInNewContext(src.toString(), { console: { log: log } })
     function log (msg) {
       t.ok(msg.indexOf('var bel = 0') !== -1, 'replaced bel dependency with 0')
