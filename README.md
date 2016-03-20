@@ -24,18 +24,18 @@ browserify entry.js -t yo-yoify -o bundle.js
 
 ## how this works
 
-`yo-yo` and `bel` pass template literals to `hyperx`. `hyperx` then parses and
-extracts the tags. `bel` then turns those tags into calls to
-`document.createElement()`.
+`yo-yo` and `bel`, without this transform, pass template literals to `hyperx`.
+`hyperx` then parses and extracts the tags. `bel` then turns those tags into
+calls to `document.createElement()`.
 
-When using this transform, your template literal:
+When using this transform, your template literals:
 
 ```js
 var msg = 'hello!'
 var element = yo`<div>${msg}</div>`
 ```
 
-Becomes direct calls to the `document`:
+Transform into direct calls to the `document`:
 
 ```js
 var msg = 'hello!'
