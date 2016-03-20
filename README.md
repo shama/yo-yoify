@@ -47,7 +47,7 @@ var element = (function () {
 }(msg))
 ```
 
-Which means, way better performance.
+Which means, way better performance and compatibility with older browsers.
 
 # license
 (c) 2016 Kyle Robinson Young. MIT License
