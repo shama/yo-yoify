@@ -5,9 +5,8 @@
 [![Downloads][downloads-image]][downloads-url]
 [![js-standard-style][standard-image]][standard-url]
 
-Transform [yo-yo](https://github.com/maxogden/yo-yo) or
-[bel](https://github.com/shama/bel) template strings into pure and fast
-document calls.
+Transform [yo-yo][yo-yo-url] or [bel][bel-url] template strings into pure and
+fast document calls.
 
 ## install
 
@@ -52,6 +51,8 @@ Which means, way better performance and compatibility with older browsers.
 # license
 (c) 2016 Kyle Robinson Young. MIT License
 
+[yo-yo-url]: https://github.com/maxogden/yo-yo
+[bel-url]: https://github.com/shama/bel
 [npm-image]: https://img.shields.io/npm/v/yo-yoify.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/yo-yoify
 [travis-image]: https://img.shields.io/travis/shama/yo-yoify/master.svg?style=flat-square
