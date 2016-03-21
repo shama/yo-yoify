@@ -103,7 +103,8 @@ module.exports = function (file, opts) {
           if (src) {
             if (src.arg) {
               var val = `arguments[${argCount}]`
-              if (src.extra) val += ' + ' + JSON.stringify(src.extra)
+              if (src.before) val = JSON.stringify(src.before) + ' + ' + val
+              if (src.after) val += ' + ' + JSON.stringify(src.after)
               addAttr(elname, key, val)
               resultArgs.push(src.arg)
               argCount++
@@ -141,7 +142,7 @@ module.exports = function (file, opts) {
         }
 
         // Return delim'd parts as a child
-        return [elname, res.join('\n'), null, null].join(DELIM)
+        return DELIM + [elname, res.join('\n'), null].join(DELIM) + DELIM
       })
 
       // Run through hyperx
@@ -202,16 +203,17 @@ module.exports = function (file, opts) {
 
 function cooked (node) { return node.value.cooked }
 function expr (ex, idx) {
-  return [null, null, ex.source(), null].join(DELIM)
+  return DELIM + [null, null, ex.source()].join(DELIM) + DELIM
 }
 function getSourceParts (str) {
   if (typeof str !== 'string') return false
   if (str.indexOf(DELIM) === -1) return false
   var parts = str.split(DELIM)
   return {
-    name: parts[0],
-    src: parts[1],
-    arg: parts[2],
-    extra: parts[3]
+    before: parts[0],
+    name: parts[1],
+    src: parts[2],
+    arg: parts[3],
+    after: parts[4]
   }
 }

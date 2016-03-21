@@ -34,7 +34,7 @@ test('strings + template expressions', function (t) {
   t.plan(2)
   var src = `var bel = require('bel')
   var className = 'test'
-  var el = bel\`<div class="\${className} works"><div>\``
+  var el = bel\`<div class="before \${className} after"><div>\``
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false
@@ -44,7 +44,7 @@ test('strings + template expressions', function (t) {
     fs.unlinkSync(FIXTURE)
     t.ifError(err, 'no error')
     var result = src.toString()
-    t.ok(result.indexOf('bel0.setAttribute("class", arguments[0] + " works")') !== -1, 'concats strings + template expressions')
+    t.ok(result.indexOf('bel0.setAttribute("class", "before " + arguments[0] + " after")') !== -1, 'concats strings + template expressions')
     t.end()
   })
 })
