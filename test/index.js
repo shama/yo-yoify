@@ -48,3 +48,22 @@ test('strings + template expressions', function (t) {
     t.end()
   })
 })
+
+test('append children in the correct order', function (t) {
+  t.plan(2)
+  var src = `var bel = require('bel')
+  var el = bel\`<div>This is a <a href="#">test</a> to ensure <strong>strings</strong> get appended in the correct order.</div>\``
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    browserField: false
+  })
+  b.transform(path.join(__dirname, '..'))
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    var expected = 'appendChild(bel2, ["This is a ",bel0," to ensure ",bel1," get appended in the correct order."])'
+    t.ok(result.indexOf(expected) !== -1, 'append children in the correct order')
+    t.end()
+  })
+})

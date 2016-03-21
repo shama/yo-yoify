@@ -115,26 +115,25 @@ module.exports = function (file, opts) {
         })
 
         if (Array.isArray(children)) {
-          var childs = children.map(function (child) {
+          var childs = []
+          children.forEach(function (child) {
             var src = getSourceParts(child)
             if (src) {
               if (src.src) {
                 res.push(src.src)
               }
               if (src.name) {
-                res.push(`${elname}.appendChild(${src.name})`)
+                childs.push(src.name)
               }
               if (src.arg) {
                 var argname = `arguments[${argCount}]`
                 resultArgs.push(src.arg)
                 argCount++
-                return argname
+                childs.push(argname)
               }
             } else {
-              return JSON.stringify(child)
+              childs.push(JSON.stringify(child))
             }
-          }).filter(function (child) {
-            return !!child
           })
           if (childs.length > 0) {
             res.push(`appendChild(${elname}, [${childs.join(',')}])`)
