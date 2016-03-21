@@ -102,7 +102,9 @@ module.exports = function (file, opts) {
           var src = getSourceParts(prop)
           if (src) {
             if (src.arg) {
-              addAttr(elname, key, `arguments[${argCount}]`)
+              var val = `arguments[${argCount}]`
+              if (src.extra) val += ' + ' + JSON.stringify(src.extra)
+              addAttr(elname, key, val)
               resultArgs.push(src.arg)
               argCount++
             }
@@ -139,7 +141,7 @@ module.exports = function (file, opts) {
         }
 
         // Return delim'd parts as a child
-        return [elname, res.join('\n'), null].join(DELIM)
+        return [elname, res.join('\n'), null, null].join(DELIM)
       })
 
       // Run through hyperx
@@ -200,7 +202,7 @@ module.exports = function (file, opts) {
 
 function cooked (node) { return node.value.cooked }
 function expr (ex, idx) {
-  return [null, null, ex.source()].join(DELIM)
+  return [null, null, ex.source(), null].join(DELIM)
 }
 function getSourceParts (str) {
   if (typeof str !== 'string') return false
@@ -209,6 +211,7 @@ function getSourceParts (str) {
   return {
     name: parts[0],
     src: parts[1],
-    arg: parts[2]
+    arg: parts[2],
+    extra: parts[3]
   }
 }

@@ -1,13 +1,12 @@
 var test = require('tape')
 var browserify = require('browserify')
-var vm = require('vm')
 var fs = require('fs')
 var path = require('path')
 
 var FIXTURE = path.join(__dirname, 'fixture.js')
 
 test('works', function (t) {
-  t.plan(1)
+  t.plan(4)
   var src = `var bel = require('bel')
   module.exports = function (data) {
     var className = 'test'
@@ -22,13 +21,30 @@ test('works', function (t) {
   b.transform(path.join(__dirname, '..'))
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
-    t.ifError(err)
-    vm.runInNewContext(src.toString(), { console: { log: log } })
-    function log (msg) {
-      t.ok(msg.indexOf('var bel = 0') !== -1, 'replaced bel dependency with 0')
-      t.ok(msg.indexOf('document.createElement("h1")') !== -1, 'created an h1 tag')
-      t.ok(msg.indexOf('setAttribute("class", arguments[1])') !== -1, 'set a class attribute')
-      t.end()
-    }
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('var bel = 0') !== -1, 'replaced bel dependency with 0')
+    t.ok(result.indexOf('document.createElement("h1")') !== -1, 'created an h1 tag')
+    t.ok(result.indexOf('setAttribute("class", arguments[1])') !== -1, 'set a class attribute')
+    t.end()
+  })
+})
+
+test('strings + template expressions', function (t) {
+  t.plan(2)
+  var src = `var bel = require('bel')
+  var className = 'test'
+  var el = bel\`<div class="\${className} works"><div>\``
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    browserField: false
+  })
+  b.transform(path.join(__dirname, '..'))
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('bel0.setAttribute("class", arguments[0] + " works")') !== -1, 'concats strings + template expressions')
+    t.end()
   })
 })
