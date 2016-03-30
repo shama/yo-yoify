@@ -154,7 +154,6 @@ module.exports = function (file, opts) {
         // TODO: Would be more efficient to stash this function higher up in scope
         node.parent.update(`(function () {
           function appendChild (el, childs) {
-            if (!Array.isArray(childs)) return
             for (var i = 0; i < childs.length; i++) {
               var node = childs[i];
               if (Array.isArray(node)) {
