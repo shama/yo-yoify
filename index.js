@@ -190,7 +190,7 @@ module.exports = function (file, opts) {
       (node.arguments[0].value === 'bel' || node.arguments[0].value === 'yo-yo')) {
       if (node.arguments[0].value === 'bel') {
         // Only 0 out bel as yo-yo still needs yo.update()
-        node.update('0')
+        node.update('{}')
       }
       if (node.parent.type === 'VariableDeclarator') {
         isBelOrYoYo.push(node.parent.id.name)
