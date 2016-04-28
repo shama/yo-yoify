@@ -69,7 +69,7 @@ module.exports = function (file, opts) {
         var elname = VARNAME + tagCount
         tagCount++
         if (namespace) {
-          res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}', ${JSON.stringify(tag)})`)
+          res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}, ${JSON.stringify(tag)})`)
         } else {
           res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
         }
