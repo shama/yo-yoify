@@ -49,8 +49,16 @@ module.exports = function (file, opts) {
     this.push(null)
   }
   function walk (node) {
-    if (node.type === 'TemplateLiteral' &&
-      node.parent.tag && isBelOrYoYo.indexOf(node.parent.tag.name) !== -1) {
+    if (node.type === 'TemplateLiteral' && node.parent.tag &&
+      node.parent.tag.object &&
+      isBelOrYoYo.indexOf(node.parent.tag.object.name) !== -1) {
+      const index = isBelOrYoYo.indexOf(node.parent.tag.object.name)
+      const name = isBelOrYoYo[index]
+      node.parent.update(name + node.source())
+    }
+
+    if (node.type === 'TemplateLiteral' && node.parent.tag &&
+      isBelOrYoYo.indexOf(node.parent.tag.name) !== -1) {
       var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
 
       var resultArgs = []
@@ -187,7 +195,9 @@ module.exports = function (file, opts) {
     } else if (node.type === 'CallExpression' &&
       node.callee && node.callee.name === 'require' &&
       node.arguments.length === 1 &&
-      (node.arguments[0].value === 'bel' || node.arguments[0].value === 'yo-yo')) {
+      (node.arguments[0].value === 'bel' ||
+        node.arguments[0].value === 'yo-yo' ||
+        node.arguments[0].value === 'choo')) {
       if (node.arguments[0].value === 'bel') {
         // Only 0 out bel as yo-yo still needs yo.update()
         node.update('{}')

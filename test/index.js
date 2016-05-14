@@ -30,6 +30,30 @@ test('works', function (t) {
   })
 })
 
+test('works for choo', function (t) {
+  t.plan(3)
+  var src = `var choo = require('choo')
+  module.exports = function (data) {
+    var className = 'test'
+    return choo.view\`<div class="\${className}">
+      <h1>\${data}</h1>
+    </div>\`
+  }`
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    browserField: false
+  })
+  b.transform(path.join(__dirname, '..'))
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('document.createElement("h1")') !== -1, 'created an h1 tag')
+    t.ok(result.indexOf('setAttribute("class", arguments[1])') !== -1, 'set a class attribute')
+    t.end()
+  })
+})
+
 test('strings + template expressions', function (t) {
   t.plan(2)
   var src = `var bel = require('bel')

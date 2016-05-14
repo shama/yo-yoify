@@ -5,8 +5,8 @@
 [![Downloads][downloads-image]][downloads-url]
 [![js-standard-style][standard-image]][standard-url]
 
-Transform [yo-yo][yo-yo-url] or [bel][bel-url] template strings into pure and
-fast document calls.
+Transform [yo-yo][yo-yo-url], [bel][bel-url] or [choo][choo-url] template
+strings into pure and fast document calls.
 
 ## install
 
@@ -56,6 +56,7 @@ Which means, way better performance and compatibility with older browsers.
 
 [yo-yo-url]: https://github.com/maxogden/yo-yo
 [bel-url]: https://github.com/shama/bel
+[choo-url]: https://github.com/yoshuawuyts/choo
 [npm-image]: https://img.shields.io/npm/v/yo-yoify.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/yo-yoify
 [travis-image]: https://img.shields.io/travis/shama/yo-yoify/master.svg?style=flat-square
