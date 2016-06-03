@@ -16,14 +16,11 @@ npm install yo-yoify --save-dev
 
 ## usage
 
-When using Browserify, use as a global transform:
+When using Browserify, use as a plugin:
 
 ```shell
-browserify entry.js -g yo-yoify -o bundle.js
+browserify entry.js -p yo-yoify -o bundle.js
 ```
-
-> Using the transform globally means we can remove `bel` and `hyperx` as
-> dependencies from `yo-yo` thus reducing the size of the final bundle.
 
 ## how this works
 
