@@ -30,12 +30,12 @@
   "homepage": "https://github.com/shama/yo-yoify",
   "dependencies": {
     "falafel": "^1.2.0",
-    "hyperx": "^2.0.2",
+    "hyperx": "^2.0.3",
     "through2": "^2.0.1"
   },
   "devDependencies": {
-    "browserify": "^13.0.0",
-    "standard": "^6.0.8",
+    "browserify": "^13.0.1",
+    "standard": "^7.1.1",
     "tape": "^4.5.1"
   }
 }
