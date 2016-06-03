@@ -16,6 +16,7 @@
     "yo-yo",
     "elements",
     "browserify",
+    "plugin",
     "transform"
   ],
   "files": [

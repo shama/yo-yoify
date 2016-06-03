@@ -16,9 +16,9 @@ test('works', function (t) {
   }`
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
-    browserField: false
+    browserField: false,
+    plugin: path.join(__dirname, '..')
   })
-  b.transform(path.join(__dirname, '..'))
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
     t.ifError(err, 'no error')
@@ -37,9 +37,9 @@ test('strings + template expressions', function (t) {
   var el = bel\`<div class="before \${className} after"><div>\``
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
-    browserField: false
+    browserField: false,
+    plugin: path.join(__dirname, '..')
   })
-  b.transform(path.join(__dirname, '..'))
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
     t.ifError(err, 'no error')
@@ -55,14 +55,14 @@ test('append children in the correct order', function (t) {
   var el = bel\`<div>This is a <a href="#">test</a> to ensure <strong>strings</strong> get appended in the correct order.</div>\``
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
-    browserField: false
+    browserField: false,
+    plugin: path.join(__dirname, '..')
   })
-  b.transform(path.join(__dirname, '..'))
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
     t.ifError(err, 'no error')
     var result = src.toString()
-    var expected = 'appendChild(bel2, ["This is a ",bel0," to ensure ",bel1," get appended in the correct order."])'
+    var expected = '(bel2, ["This is a ",bel0," to ensure ",bel1," get appended in the correct order."])'
     t.ok(result.indexOf(expected) !== -1, 'append children in the correct order')
     t.end()
   })
@@ -74,9 +74,9 @@ test('svg', function (t) {
   var el = bel\`<svg><line /></svg>\``
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
-    browserField: false
+    browserField: false,
+    plugin: path.join(__dirname, '..')
   })
-  b.transform(path.join(__dirname, '..'))
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
     t.ifError(err, 'no error')

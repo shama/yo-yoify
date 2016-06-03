@@ -1,3 +1,4 @@
+var path = require('path')
 var falafel = require('falafel')
 var through = require('through2')
 var hyperx = require('hyperx')
@@ -33,8 +34,13 @@ var SVG_TAGS = [
   'set', 'stop', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref',
   'tspan', 'use', 'view', 'vkern'
 ]
+var APPENDCHILD = 'require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js') + '\')'
 
-module.exports = function (file, opts) {
+module.exports = function (b, opts) {
+  b.transform(transform, { global: true })
+}
+
+function transform (file, opts) {
   if (/\.json$/.test(file)) return through()
   var bufs = []
   var isBelOrYoYo = []
@@ -136,7 +142,7 @@ module.exports = function (file, opts) {
             }
           })
           if (childs.length > 0) {
-            res.push(`appendChild(${elname}, [${childs.join(',')}])`)
+            res.push(`${APPENDCHILD}(${elname}, [${childs.join(',')}])`)
           }
         }
 
@@ -151,35 +157,7 @@ module.exports = function (file, opts) {
       var src = getSourceParts(res)
       if (src && src.src) {
         var params = resultArgs.join(',')
-        // TODO: Would be more efficient to stash this function higher up in scope
         node.parent.update(`(function () {
-          function appendChild (el, childs) {
-            for (var i = 0; i < childs.length; i++) {
-              var node = childs[i];
-              if (Array.isArray(node)) {
-                appendChild(el, node)
-                continue
-              }
-              if (typeof node === "number" ||
-                typeof node === "boolean" ||
-                node instanceof Date ||
-                node instanceof RegExp) {
-                node = node.toString()
-              }
-
-              if (typeof node === "string") {
-                if (el.lastChild && el.lastChild.nodeName === "#text") {
-                  el.lastChild.nodeValue += node
-                  continue
-                }
-                node = document.createTextNode(node)
-              }
-
-              if (node && node.nodeType) {
-                el.appendChild(node)
-              }
-            }
-          }
           ${src.src}
           return ${src.name}
         }(${params}))`)
