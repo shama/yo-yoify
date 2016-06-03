@@ -34,7 +34,6 @@ var SVG_TAGS = [
   'set', 'stop', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref',
   'tspan', 'use', 'view', 'vkern'
 ]
-var APPENDCHILD = 'require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js') + '\')'
 
 module.exports = function (b, opts) {
   b.transform(transform, { global: true })
@@ -142,7 +141,7 @@ function transform (file, opts) {
             }
           })
           if (childs.length > 0) {
-            res.push(`${APPENDCHILD}(${elname}, [${childs.join(',')}])`)
+            res.push(`ac(${elname}, [${childs.join(',')}])`)
           }
         }
 
@@ -158,6 +157,7 @@ function transform (file, opts) {
       if (src && src.src) {
         var params = resultArgs.join(',')
         node.parent.update(`(function () {
+          var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')}')
           ${src.src}
           return ${src.name}
         }(${params}))`)
