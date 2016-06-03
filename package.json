@@ -35,7 +35,9 @@
   },
   "devDependencies": {
     "browserify": "^13.0.0",
+    "choo": "^1.1.0",
     "standard": "^6.0.8",
-    "tape": "^4.5.1"
+    "tape": "^4.5.1",
+    "yo-yo": "^1.2.0"
   }
 }
