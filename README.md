@@ -48,6 +48,30 @@ var element = (function () {
 
 Which means, way better performance and compatibility with older browsers.
 
+## interoperability
+
+Creating standalone elements is awesome but we don't want to be greedy. So if
+you're using React or virtual-dom and would like to directly integrate yo-yo/bel
+elements, supply the `render` option of your choice:
+
+**react**  
+`browserify entry.js -p [ yo-yoify --render react ]`
+```js
+var BelElement = require('bel-element')
+ReactDOM.render(<BelElement />, document.body)
+```
+
+**virtual-dom**  
+`browserify entry.js -p [ yo-yoify --render vdom ]`
+```js
+var belElement = require('bel-element')
+var vdom = require('virtual-dom')
+var tree = vdom.create(vdom.h('div', [belElement]))
+```
+
+Now yo-yoify will transform those elements to call `React.createElement` or
+`vdom.h` instead of `document.createElement`.
+
 # license
 (c) 2016 Kyle Robinson Young. MIT License
 

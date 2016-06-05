@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "budo index.js",
-    "test": "standard && node test/index.js"
+    "test": "standard && node test/index.js",
+    "build": "browserify examples/element.js -p [ ./index.js --render vdom ]"
   },
   "repository": {
     "type": "git",
