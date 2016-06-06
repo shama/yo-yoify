@@ -20,7 +20,9 @@
     "transform"
   ],
   "files": [
-    "index.js"
+    "index.js",
+    "lib",
+    "test"
   ],
   "author": "Kyle Robinson Young <kyle@dontkry.com> (http://dontkry.com)",
   "license": "MIT",
