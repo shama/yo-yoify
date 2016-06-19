@@ -84,6 +84,10 @@ function transform (file, opts) {
           if (key.toLowerCase() === 'classname') {
             key = 'class'
           }
+          // The for attribute gets transformed to htmlFor, but we just set as for
+          if (p === 'htmlFor') {
+            p = 'for'
+          }
           // If a property is boolean, set itself to the key
           if (BOOL_PROPS[key]) {
             if (val === 'true') val = key
