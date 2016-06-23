@@ -58,7 +58,7 @@ module.exports = function yoYoify (file, opts) {
         node.update('{}')
       }
       if (node.parent.type === 'VariableDeclarator') {
-        viewVariables.push(node.arguments[0].value)
+        viewVariables.push(node.parent.id.name)
       }
     }
 
