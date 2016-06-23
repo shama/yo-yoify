@@ -5,8 +5,8 @@
 [![Downloads][downloads-image]][downloads-url]
 [![js-standard-style][standard-image]][standard-url]
 
-Transform [yo-yo][yo-yo-url] or [bel][bel-url] template strings into pure and
-fast document calls.
+Transform [choo][choo-url], [yo-yo][yo-yo-url], or [bel][bel-url] template
+strings into pure and fast document calls.
 
 ## install
 
@@ -16,10 +16,10 @@ npm install yo-yoify --save-dev
 
 ## usage
 
-When using Browserify, use as a plugin:
+When using Browserify, use as a global transform:
 
 ```shell
-browserify entry.js -p yo-yoify -o bundle.js
+browserify entry.js -g yo-yoify -o bundle.js
 ```
 
 ## how this works
@@ -51,6 +51,7 @@ Which means, way better performance and compatibility with older browsers.
 # license
 (c) 2016 Kyle Robinson Young. MIT License
 
+[choo-url]: https://github.com/yoshuawuyts/choo
 [yo-yo-url]: https://github.com/maxogden/yo-yo
 [bel-url]: https://github.com/shama/bel
 [npm-image]: https://img.shields.io/npm/v/yo-yoify.svg?style=flat-square

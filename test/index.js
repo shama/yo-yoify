@@ -17,7 +17,7 @@ test('works', function (t) {
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
-    plugin: path.join(__dirname, '..')
+    transform: path.join(__dirname, '..')
   })
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
@@ -38,7 +38,7 @@ test('strings + template expressions', function (t) {
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
-    plugin: path.join(__dirname, '..')
+    transform: path.join(__dirname, '..')
   })
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
@@ -56,7 +56,7 @@ test('append children in the correct order', function (t) {
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
-    plugin: path.join(__dirname, '..')
+    transform: path.join(__dirname, '..')
   })
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
@@ -75,7 +75,7 @@ test('svg', function (t) {
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
-    plugin: path.join(__dirname, '..')
+    transform: path.join(__dirname, '..')
   })
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
@@ -94,7 +94,7 @@ test('choo and friends', function (t) {
   const el2 = bel\`<button>bel bel</button>\``
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
-    plugin: path.join(__dirname, '..')
+    transform: path.join(__dirname, '..')
   })
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)

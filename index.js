@@ -36,11 +36,7 @@ var SVG_TAGS = [
   'tspan', 'use', 'view', 'vkern'
 ]
 
-module.exports = function (b, opts) {
-  b.transform(transform, { global: true })
-}
-
-function transform (file, opts) {
+module.exports = function yoYoify (file, opts) {
   if (/\.json$/.test(file)) return through()
   var bufs = []
   var viewVariables = []
