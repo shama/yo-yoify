@@ -3,6 +3,7 @@ var falafel = require('falafel')
 var through = require('through2')
 var hyperx = require('hyperx')
 
+var SUPPORTED_VIEWS = ['bel', 'yo-yo', 'choo', 'choo/html']
 var DELIM = '~!@|@|@!~'
 var VARNAME = 'bel'
 var SVGNS = 'http://www.w3.org/2000/svg'
@@ -42,7 +43,7 @@ module.exports = function (b, opts) {
 function transform (file, opts) {
   if (/\.json$/.test(file)) return through()
   var bufs = []
-  var isBelOrYoYo = []
+  var viewVariables = []
   return through(write, end)
   function write (buf, enc, next) {
     bufs.push(buf)
@@ -50,135 +51,148 @@ function transform (file, opts) {
   }
   function end () {
     var src = Buffer.concat(bufs).toString('utf8')
-    this.push(falafel(src, { ecmaVersion: 6 }, walk).toString())
+    var res = falafel(src, { ecmaVersion: 6 }, walk).toString()
+    this.push(res)
     this.push(null)
   }
   function walk (node) {
-    if (node.type === 'TemplateLiteral' &&
-      node.parent.tag && isBelOrYoYo.indexOf(node.parent.tag.name) !== -1) {
-      var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
-
-      var resultArgs = []
-      var argCount = 0
-      var tagCount = 0
-      var hx = hyperx(function (tag, props, children) {
-        var res = []
-
-        // Whether this element needs a namespace
-        var namespace = props.namespace
-        if (!namespace && SVG_TAGS.indexOf(tag) !== -1) {
-          namespace = SVGNS
-        }
-
-        // Create the element
-        var elname = VARNAME + tagCount
-        tagCount++
-        if (namespace) {
-          res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}, ${JSON.stringify(tag)})`)
-        } else {
-          res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
-        }
-
-        function addAttr (to, key, val) {
-          // Normalize className
-          if (key.toLowerCase() === 'classname') {
-            key = 'class'
-          }
-          // The for attribute gets transformed to htmlFor, but we just set as for
-          if (p === 'htmlFor') {
-            p = 'for'
-          }
-          // If a property is boolean, set itself to the key
-          if (BOOL_PROPS[key]) {
-            if (val === 'true') val = key
-            else if (val === 'false') return
-          }
-          var p = JSON.stringify(key)
-          if (key.slice(0, 2) === 'on') {
-            res.push(`${to}[${p}] = ${val}`)
-          } else {
-            if (namespace) {
-              res.push(`${to}.setAttributeNS(null, ${p}, ${val})`)
-            } else {
-              res.push(`${to}.setAttribute(${p}, ${val})`)
-            }
-          }
-        }
-
-        // Add properties to element
-        Object.keys(props).forEach(function (key) {
-          var prop = props[key]
-          var src = getSourceParts(prop)
-          if (src) {
-            if (src.arg) {
-              var val = `arguments[${argCount}]`
-              if (src.before) val = JSON.stringify(src.before) + ' + ' + val
-              if (src.after) val += ' + ' + JSON.stringify(src.after)
-              addAttr(elname, key, val)
-              resultArgs.push(src.arg)
-              argCount++
-            }
-          } else {
-            addAttr(elname, key, JSON.stringify(prop))
-          }
-        })
-
-        if (Array.isArray(children)) {
-          var childs = []
-          children.forEach(function (child) {
-            var src = getSourceParts(child)
-            if (src) {
-              if (src.src) {
-                res.push(src.src)
-              }
-              if (src.name) {
-                childs.push(src.name)
-              }
-              if (src.arg) {
-                var argname = `arguments[${argCount}]`
-                resultArgs.push(src.arg)
-                argCount++
-                childs.push(argname)
-              }
-            } else {
-              childs.push(JSON.stringify(child))
-            }
-          })
-          if (childs.length > 0) {
-            res.push(`ac(${elname}, [${childs.join(',')}])`)
-          }
-        }
-
-        // Return delim'd parts as a child
-        return DELIM + [elname, res.join('\n'), null].join(DELIM) + DELIM
-      })
-
-      // Run through hyperx
-      var res = hx.apply(null, args)
-
-      // Pull out the final parts and wrap in a closure with arguments
-      var src = getSourceParts(res)
-      if (src && src.src) {
-        var params = resultArgs.join(',')
-        node.parent.update(`(function () {
-          var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')}')
-          ${src.src}
-          return ${src.name}
-        }(${params}))`)
-      }
-    } else if (node.type === 'CallExpression' &&
-      node.callee && node.callee.name === 'require' &&
-      node.arguments.length === 1 &&
-      (node.arguments[0].value === 'bel' || node.arguments[0].value === 'yo-yo')) {
+    if (isSupportedView(node)) {
       if (node.arguments[0].value === 'bel') {
         // Only 0 out bel as yo-yo still needs yo.update()
         node.update('{}')
       }
       if (node.parent.type === 'VariableDeclarator') {
-        isBelOrYoYo.push(node.parent.id.name)
+        viewVariables.push(node.arguments[0].value)
+      }
+    }
+
+    if (node.type === 'TemplateLiteral' && node.parent.tag) {
+      var name = node.parent.tag.name || node.parent.tag.object && node.parent.tag.object.name
+      if (viewVariables.indexOf(name) !== -1) {
+        processNode(node)
       }
     }
   }
+}
+
+function processNode (node) {
+  var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
+
+  var resultArgs = []
+  var argCount = 0
+  var tagCount = 0
+  var hx = hyperx(function (tag, props, children) {
+    var res = []
+
+    // Whether this element needs a namespace
+    var namespace = props.namespace
+    if (!namespace && SVG_TAGS.indexOf(tag) !== -1) {
+      namespace = SVGNS
+    }
+
+    // Create the element
+    var elname = VARNAME + tagCount
+    tagCount++
+    if (namespace) {
+      res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}, ${JSON.stringify(tag)})`)
+    } else {
+      res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
+    }
+
+    function addAttr (to, key, val) {
+      // Normalize className
+      if (key.toLowerCase() === 'classname') {
+        key = 'class'
+      }
+      // The for attribute gets transformed to htmlFor, but we just set as for
+      if (p === 'htmlFor') {
+        p = 'for'
+      }
+      // If a property is boolean, set itself to the key
+      if (BOOL_PROPS[key]) {
+        if (val === 'true') val = key
+        else if (val === 'false') return
+      }
+      var p = JSON.stringify(key)
+      if (key.slice(0, 2) === 'on') {
+        res.push(`${to}[${p}] = ${val}`)
+      } else {
+        if (namespace) {
+          res.push(`${to}.setAttributeNS(null, ${p}, ${val})`)
+        } else {
+          res.push(`${to}.setAttribute(${p}, ${val})`)
+        }
+      }
+    }
+
+    // Add properties to element
+    Object.keys(props).forEach(function (key) {
+      var prop = props[key]
+      var src = getSourceParts(prop)
+      if (src) {
+        if (src.arg) {
+          var val = `arguments[${argCount}]`
+          if (src.before) val = JSON.stringify(src.before) + ' + ' + val
+          if (src.after) val += ' + ' + JSON.stringify(src.after)
+          addAttr(elname, key, val)
+          resultArgs.push(src.arg)
+          argCount++
+        }
+      } else {
+        addAttr(elname, key, JSON.stringify(prop))
+      }
+    })
+
+    if (Array.isArray(children)) {
+      var childs = []
+      children.forEach(function (child) {
+        var src = getSourceParts(child)
+        if (src) {
+          if (src.src) {
+            res.push(src.src)
+          }
+          if (src.name) {
+            childs.push(src.name)
+          }
+          if (src.arg) {
+            var argname = `arguments[${argCount}]`
+            resultArgs.push(src.arg)
+            argCount++
+            childs.push(argname)
+          }
+        } else {
+          childs.push(JSON.stringify(child))
+        }
+      })
+      if (childs.length > 0) {
+        res.push(`ac(${elname}, [${childs.join(',')}])`)
+      }
+    }
+
+    // Return delim'd parts as a child
+    return DELIM + [elname, res.join('\n'), null].join(DELIM) + DELIM
+  })
+
+  // Run through hyperx
+  var res = hx.apply(null, args)
+
+  // Pull out the final parts and wrap in a closure with arguments
+  var src = getSourceParts(res)
+  if (src && src.src) {
+    var params = resultArgs.join(',')
+    node.parent.update(`(function () {
+      var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')}')
+      ${src.src}
+      return ${src.name}
+    }(${params}))`)
+  }
+}
+
+function isSupportedView (node) {
+  return (node.type === 'CallExpression' &&
+    node.callee && node.callee.name === 'require' &&
+    node.arguments.length === 1 &&
+    SUPPORTED_VIEWS.indexOf(node.arguments[0].value) !== -1)
 }
 
 function cooked (node) { return node.value.cooked }

@@ -85,3 +85,23 @@ test('svg', function (t) {
     t.end()
   })
 })
+
+test('choo and friends', function (t) {
+  t.plan(3)
+  var src = `const choo = require('choo')
+  const bel = require('bel')
+  const el1 = choo.view\`<button>choo choo</button>\`
+  const el2 = bel\`<button>bel bel</button>\``
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    plugin: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('const el1 = (function () {' !== -1), 'converted el1 to a iife')
+    t.ok(result.indexOf('const el2 = (function () {' !== -1), 'converted el1 to a iife')
+    t.end()
+  })
+})
