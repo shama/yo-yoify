@@ -22,8 +22,7 @@
   ],
   "files": [
     "index.js",
-    "lib",
-    "test"
+    "lib"
   ],
   "author": "Kyle Robinson Young <kyle@dontkry.com> (http://dontkry.com)",
   "license": "MIT",
