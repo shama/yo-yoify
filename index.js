@@ -73,6 +73,7 @@ module.exports = function yoYoify (file, opts) {
 
 function processNode (node) {
   var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
+  var needsOnLoad = false
 
   var resultArgs = []
   var argCount = 0
@@ -93,6 +94,33 @@ function processNode (node) {
       res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}, ${JSON.stringify(tag)})`)
     } else {
       res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
+    }
+
+    // If adding onload events
+    if (props.onload || props.onunload) {
+      var onloadParts = getSourceParts(props.onload)
+      var onunloadParts = getSourceParts(props.onunload)
+      var onloadCode = ''
+      var onunloadCode = ''
+      if (onloadParts.arg !== '') {
+        onloadCode = `args[${argCount}](${elname})`
+        resultArgs.push(onloadParts.arg)
+        argCount++
+      }
+      if (onunloadParts.arg !== '') {
+        onunloadCode = `args[${argCount}](${elname})`
+        resultArgs.push(onunloadParts.arg)
+        argCount++
+      }
+      res.push(`var args = arguments
+      onload(${elname}, function bel_onload () {
+        ${onloadCode}
+      }, function bel_onunload () {
+        ${onunloadCode}
+      })`)
+      needsOnLoad = true
+      delete props.onload
+      delete props.onunload
     }
 
     function addAttr (to, key, val) {
@@ -176,7 +204,9 @@ function processNode (node) {
   var src = getSourceParts(res)
   if (src && src.src) {
     var params = resultArgs.join(',')
+    // TODO: This should use the on-load version of choo/yo-yo/bel
     node.parent.update(`(function () {
+      ${needsOnLoad ? `var onload = require('${require.resolve('on-load')}')` : ''}
       var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')}')
       ${src.src}
       return ${src.name}

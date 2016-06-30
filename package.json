@@ -33,6 +33,7 @@
   "dependencies": {
     "falafel": "^1.2.0",
     "hyperx": "^2.0.3",
+    "on-load": "^3.0.0",
     "through2": "^2.0.1"
   },
   "devDependencies": {

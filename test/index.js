@@ -105,3 +105,25 @@ test('choo and friends', function (t) {
     t.end()
   })
 })
+
+test('onload/onunload', function (t) {
+  t.plan(3)
+  var src = `var bel = require('bel')
+  var el = bel\`<div onload=\${function (e) {
+    console.log('onload', e)
+  }} onunload=\${function (e) {
+    console.log('onunload', e)
+  }}>bel</div>\``
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('onload(bel0, function bel_onload () {' !== -1), 'adds onload event to element')
+    t.ok(result.indexOf('function bel_onunload () {' !== -1), 'adds onunload event to element')
+    t.end()
+  })
+})
