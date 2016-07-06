@@ -35,6 +35,7 @@ var SVG_TAGS = [
   'set', 'stop', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref',
   'tspan', 'use', 'view', 'vkern'
 ]
+var onloadElementId = 0
 
 module.exports = function yoYoify (file, opts) {
   if (/\.json$/.test(file)) return through()
@@ -102,12 +103,14 @@ function processNode (node) {
       var onunloadParts = getSourceParts(props.onunload)
       var onloadCode = ''
       var onunloadCode = ''
-      if (onloadParts.arg !== '') {
+      var elementIdentifier = JSON.stringify('o' + onloadElementId)
+      onloadElementId += 1
+      if (onloadParts && onloadParts.arg !== '') {
         onloadCode = `args[${argCount}](${elname})`
         resultArgs.push(onloadParts.arg)
         argCount++
       }
-      if (onunloadParts.arg !== '') {
+      if (onunloadParts && onunloadParts.arg !== '') {
         onunloadCode = `args[${argCount}](${elname})`
         resultArgs.push(onunloadParts.arg)
         argCount++
@@ -117,7 +120,7 @@ function processNode (node) {
         ${onloadCode}
       }, function bel_onunload () {
         ${onunloadCode}
-      })`)
+      }, ${elementIdentifier})`)
       needsOnLoad = true
       delete props.onload
       delete props.onunload

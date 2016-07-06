@@ -107,7 +107,7 @@ test('choo and friends', function (t) {
 })
 
 test('onload/onunload', function (t) {
-  t.plan(3)
+  t.plan(4)
   var src = `var bel = require('bel')
   var el = bel\`<div onload=\${function (e) {
     console.log('onload', e)
@@ -124,6 +124,7 @@ test('onload/onunload', function (t) {
     var result = src.toString()
     t.ok(result.indexOf('onload(bel0, function bel_onload () {' !== -1), 'adds onload event to element')
     t.ok(result.indexOf('function bel_onunload () {' !== -1), 'adds onunload event to element')
+    t.ok(result.indexOf(', "o0")' !== -1), 'it identified the element')
     t.end()
   })
 })
