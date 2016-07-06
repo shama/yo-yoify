@@ -1,6 +1,6 @@
 {
   "name": "yo-yoify",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Transform yo-yo or bel template strings into pure and fast document calls",
   "main": "index.js",
   "scripts": {
