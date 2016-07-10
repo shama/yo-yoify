@@ -136,12 +136,21 @@ function processNode (node) {
       if (p === 'htmlFor') {
         p = 'for'
       }
+      var p = JSON.stringify(key)
       // If a property is boolean, set itself to the key
       if (BOOL_PROPS[key]) {
-        if (val === 'true') val = key
-        else if (val === 'false') return
+        if (val.slice(0, 9) === 'arguments') {
+          if (namespace) {
+            res.push(`if (${val}) ${to}.setAttributeNS(null, ${p}, ${p})`)
+          } else {
+            res.push(`if (${val}) ${to}.setAttribute(${p}, ${p})`)
+          }
+          return
+        } else {
+          if (val === 'true') val = key
+          else if (val === 'false') return
+        }
       }
-      var p = JSON.stringify(key)
       if (key.slice(0, 2) === 'on') {
         res.push(`${to}[${p}] = ${val}`)
       } else {
