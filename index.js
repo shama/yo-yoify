@@ -47,9 +47,14 @@ module.exports = function yoYoify (file, opts) {
     bufs.push(buf)
     next()
   }
-  function end () {
+  function end (cb) {
     var src = Buffer.concat(bufs).toString('utf8')
-    var res = falafel(src, { ecmaVersion: 6 }, walk).toString()
+    var res
+    try {
+      res = falafel(src, { ecmaVersion: 6 }, walk).toString()
+    } catch (err) {
+      return cb(err)
+    }
     this.push(res)
     this.push(null)
   }
