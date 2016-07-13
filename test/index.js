@@ -106,6 +106,25 @@ test('choo and friends', function (t) {
   })
 })
 
+test('emits error for syntax error', function (t) {
+  var src = `var bel = require('bel')
+  module.exports = function (data) {
+    var className = ('test' + ) // <--- HERE'S A SYNTAX ERROR
+    return bel\`<div class="\${className}">
+      <h1>\${data}</h1>
+    </div>\`
+  }`
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    browserField: false,
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    t.ok(err)
+    t.end()
+  })
+})
+
 test('onload/onunload', function (t) {
   t.plan(4)
   var src = `var bel = require('bel')
