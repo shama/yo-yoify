@@ -68,6 +68,27 @@ test('append children in the correct order', function (t) {
   })
 })
 
+test('multiple values on single attribute', function (t) {
+  t.plan(4)
+  var src = `var bel = require('bel')
+  var a = 'testa'
+  var b = 'testb'
+  bel\`<div class="$\{a} $\{b}">\``
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('arguments[0]') !== -1, 'first argument')
+    t.ok(result.indexOf('arguments[1]') !== -1, 'second argument')
+    t.ok(result.indexOf('(a,b)') !== -1, 'calling with both variables')
+    t.end()
+  })
+})
+
 test('svg', function (t) {
   t.plan(2)
   var src = `var bel = require('bel')
