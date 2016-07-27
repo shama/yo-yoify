@@ -111,14 +111,14 @@ function processNode (node) {
       var onunloadCode = ''
       var elementIdentifier = JSON.stringify('o' + onloadElementId)
       onloadElementId += 1
-      if (onloadParts && onloadParts.arg !== '') {
+      if (onloadParts && onloadParts[0].arg !== '') {
         onloadCode = `args[${argCount}](${elname})`
-        resultArgs.push(onloadParts.arg)
+        resultArgs.push(onloadParts[0].arg)
         argCount++
       }
-      if (onunloadParts && onunloadParts.arg !== '') {
+      if (onunloadParts && onunloadParts[0].arg !== '') {
         onunloadCode = `args[${argCount}](${elname})`
-        resultArgs.push(onunloadParts.arg)
+        resultArgs.push(onunloadParts[0].arg)
         argCount++
       }
       res.push(`var args = arguments
@@ -170,16 +170,20 @@ function processNode (node) {
     // Add properties to element
     Object.keys(props).forEach(function (key) {
       var prop = props[key]
-      var src = getSourceParts(prop)
-      if (src) {
-        if (src.arg) {
-          var val = `arguments[${argCount}]`
-          if (src.before) val = JSON.stringify(src.before) + ' + ' + val
-          if (src.after) val += ' + ' + JSON.stringify(src.after)
-          addAttr(elname, key, val)
-          resultArgs.push(src.arg)
-          argCount++
-        }
+      var srcs = getSourceParts(prop)
+      if (srcs) {
+        var val = ''
+        srcs.forEach(function (src, index) {
+          if (src.arg) {
+            if (index > 0) val += ' + '
+            if (src.before) val += JSON.stringify(src.before) + ' + '
+            val += `arguments[${argCount}]`
+            if (src.after) val += ' + ' + JSON.stringify(src.after)
+            resultArgs.push(src.arg)
+            argCount++
+          }
+        })
+        addAttr(elname, key, val)
       } else {
         addAttr(elname, key, JSON.stringify(prop))
       }
@@ -188,8 +192,9 @@ function processNode (node) {
     if (Array.isArray(children)) {
       var childs = []
       children.forEach(function (child) {
-        var src = getSourceParts(child)
-        if (src) {
+        var srcs = getSourceParts(child)
+        if (srcs) {
+          var src = srcs[0]
           if (src.src) {
             res.push(src.src)
           }
@@ -220,14 +225,14 @@ function processNode (node) {
 
   // Pull out the final parts and wrap in a closure with arguments
   var src = getSourceParts(res)
-  if (src && src.src) {
+  if (src && src[0].src) {
     var params = resultArgs.join(',')
     // TODO: This should use the on-load version of choo/yo-yo/bel
     node.parent.update(`(function () {
       ${needsOnLoad ? `var onload = require('${require.resolve('on-load')}')` : ''}
       var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')}')
-      ${src.src}
-      return ${src.name}
+      ${src[0].src}
+      return ${src[0].name}
     }(${params}))`)
   }
 }
@@ -247,11 +252,25 @@ function getSourceParts (str) {
   if (typeof str !== 'string') return false
   if (str.indexOf(DELIM) === -1) return false
   var parts = str.split(DELIM)
-  return {
-    before: parts[0],
-    name: parts[1],
-    src: parts[2],
-    arg: parts[3],
-    after: parts[4]
+
+  var chunk = parts.splice(0, 5)
+  var arr = [{
+    before: chunk[0],
+    name: chunk[1],
+    src: chunk[2],
+    arg: chunk[3],
+    after: chunk[4]
+  }]
+  while (parts.length > 0) {
+    chunk = parts.splice(0, 4)
+    arr.push({
+      before: '',
+      name: chunk[0],
+      src: chunk[1],
+      arg: chunk[2],
+      after: chunk[3]
+    })
   }
+
+  return arr
 }
