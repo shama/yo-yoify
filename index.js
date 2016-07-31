@@ -229,8 +229,12 @@ function processNode (node) {
     var params = resultArgs.join(',')
     // TODO: This should use the on-load version of choo/yo-yo/bel
     node.parent.update(`(function () {
-      ${needsOnLoad ? `var onload = require('${require.resolve('on-load')}')` : ''}
-      var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')}')
+      ${needsOnLoad ? `var onload = require('${require.resolve('on-load')
+        .replace(/\\/g, '\\\\') // fix Windows paths
+      }')` : ''}
+      var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')
+        .replace(/\\/g, '\\\\') // fix Windows paths
+      }')
       ${src[0].src}
       return ${src[0].name}
     }(${params}))`)
