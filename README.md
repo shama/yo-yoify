@@ -2,6 +2,7 @@
 
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
+[![build status][appveyor-image]][appveyor-url]
 [![Downloads][downloads-image]][downloads-url]
 [![js-standard-style][standard-image]][standard-url]
 
@@ -58,6 +59,8 @@ Which means, way better performance and compatibility with older browsers.
 [npm-url]: https://npmjs.org/package/yo-yoify
 [travis-image]: https://img.shields.io/travis/shama/yo-yoify/master.svg?style=flat-square
 [travis-url]: https://travis-ci.org/shama/yo-yoify
+[appveyor-image]: https://img.shields.io/appveyor/ci/shama/yo-yoify/master.svg
+[appveyor-url]: https://ci.appveyor.com/project/shama/yo-yoify
 [downloads-image]: http://img.shields.io/npm/dm/vel.svg?style=flat-square
 [downloads-url]: https://npmjs.org/package/yo-yoify
 [standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
