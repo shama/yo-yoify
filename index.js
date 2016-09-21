@@ -6,7 +6,6 @@ var hyperx = require('hyperx')
 var SUPPORTED_VIEWS = ['bel', 'yo-yo', 'choo', 'choo/html']
 var DELIM = '~!@|@|@!~'
 var VARNAME = 'bel'
-var SVGNS = 'http://www.w3.org/2000/svg'
 var BOOL_PROPS = {
   autofocus: 1,
   checked: 1,
@@ -19,23 +18,6 @@ var BOOL_PROPS = {
   selected: 1,
   willvalidate: 1
 }
-var SVG_TAGS = [
-  'svg',
-  'altGlyph', 'altGlyphDef', 'altGlyphItem', 'animate', 'animateColor',
-  'animateMotion', 'animateTransform', 'circle', 'clipPath', 'color-profile',
-  'cursor', 'defs', 'desc', 'ellipse', 'feBlend', 'feColorMatrix',
-  'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting',
-  'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB',
-  'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode',
-  'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting',
-  'feSpotLight', 'feTile', 'feTurbulence', 'filter', 'font', 'font-face',
-  'font-face-format', 'font-face-name', 'font-face-src', 'font-face-uri',
-  'foreignObject', 'glyph', 'glyphRef', 'hkern', 'image', 'line',
-  'linearGradient', 'marker', 'mask', 'metadata', 'missing-glyph', 'mpath',
-  'path', 'pattern', 'polygon', 'polyline', 'radialGradient', 'rect',
-  'set', 'stop', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref',
-  'tspan', 'use', 'view', 'vkern'
-]
 var onloadElementId = 0
 
 module.exports = function yoYoify (file, opts) {
@@ -88,20 +70,10 @@ function processNode (node) {
   var hx = hyperx(function (tag, props, children) {
     var res = []
 
-    // Whether this element needs a namespace
-    var namespace = props.namespace
-    if (!namespace && SVG_TAGS.indexOf(tag) !== -1) {
-      namespace = SVGNS
-    }
-
     // Create the element
     var elname = VARNAME + tagCount
     tagCount++
-    if (namespace) {
-      res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}, ${JSON.stringify(tag)})`)
-    } else {
-      res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
-    }
+    res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
 
     // If adding onload events
     if (props.onload || props.onunload) {
@@ -145,11 +117,7 @@ function processNode (node) {
       // If a property is boolean, set itself to the key
       if (BOOL_PROPS[key]) {
         if (val.slice(0, 9) === 'arguments') {
-          if (namespace) {
-            res.push(`if (${val}) ${to}.setAttributeNS(null, ${p}, ${p})`)
-          } else {
-            res.push(`if (${val}) ${to}.setAttribute(${p}, ${p})`)
-          }
+          res.push(`if (${val}) ${to}.setAttribute(${p}, ${p})`)
           return
         } else {
           if (val === 'true') val = key
@@ -159,11 +127,7 @@ function processNode (node) {
       if (key.slice(0, 2) === 'on') {
         res.push(`${to}[${p}] = ${val}`)
       } else {
-        if (namespace) {
-          res.push(`${to}.setAttributeNS(null, ${p}, ${val})`)
-        } else {
-          res.push(`${to}.setAttribute(${p}, ${val})`)
-        }
+        res.push(`${to}.setAttribute(${p}, ${val})`)
       }
     }
 
