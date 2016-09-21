@@ -37,7 +37,7 @@
     "through2": "^2.0.1"
   },
   "devDependencies": {
-    "bel": "^4.3.2",
+    "bel": "git+https://github.com/kristoferjoseph/bel",
     "browserify": "^13.0.1",
     "choo": "^2.2.2",
     "standard": "^7.1.1",
