@@ -3,6 +3,7 @@ var falafel = require('falafel')
 var through = require('through2')
 var hyperx = require('hyperx')
 
+var XLINKNS = '"http://www.w3.org/1999/xlink"'
 var SUPPORTED_VIEWS = ['bel', 'yo-yo', 'choo', 'choo/html']
 var DELIM = '~!@|@|@!~'
 var VARNAME = 'bel'
@@ -127,7 +128,11 @@ function processNode (node) {
       if (key.slice(0, 2) === 'on') {
         res.push(`${to}[${p}] = ${val}`)
       } else {
-        res.push(`${to}.setAttribute(${p}, ${val})`)
+        if (key === 'xlink:href') {
+          res.push(`${to}.setAttributeNS(${XLINKNS}, ${p}, ${val})`)
+        } else {
+          res.push(`${to}.setAttribute(${p}, ${val})`)
+        }
       }
     }
 
