@@ -89,10 +89,10 @@ test('multiple values on single attribute', function (t) {
   })
 })
 
-test('svg', function (t) {
+test('xlink:href', function (t) {
   t.plan(2)
   var src = `var bel = require('bel')
-  var el = bel\`<svg><line /></svg>\``
+  var el = bel\`<use xlink:href='#cat'/>\``
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -100,9 +100,10 @@ test('svg', function (t) {
   })
   b.bundle(function (err, src) {
     fs.unlinkSync(FIXTURE)
-    t.ifError(err, 'no error')
+    t.iferror(err, 'no error')
     var result = src.toString()
-    t.ok(result.indexOf('document.createElementNS("http://www.w3.org/2000/svg", "svg")' !== -1), 'created namespaced svg element')
+    var match = result.indexOf('setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#cat")') !== -1
+    t.ok(match, 'created namespaced xlink:href attribute')
     t.end()
   })
 })
