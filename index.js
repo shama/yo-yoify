@@ -7,6 +7,7 @@ var SUPPORTED_VIEWS = ['bel', 'yo-yo', 'choo', 'choo/html']
 var DELIM = '~!@|@|@!~'
 var VARNAME = 'bel'
 var SVGNS = 'http://www.w3.org/2000/svg'
+var XLINKNS = '"http://www.w3.org/1999/xlink"'
 var BOOL_PROPS = {
   autofocus: 1,
   checked: 1,
@@ -159,7 +160,9 @@ function processNode (node) {
       if (key.slice(0, 2) === 'on') {
         res.push(`${to}[${p}] = ${val}`)
       } else {
-        if (namespace) {
+        if (key === 'xlink:href') {
+          res.push(`${to}.setAttributeNS(${XLINKNS}, ${p}, ${val})`)
+        } else if (namespace) {
           res.push(`${to}.setAttributeNS(null, ${p}, ${val})`)
         } else {
           res.push(`${to}.setAttribute(${p}, ${val})`)
