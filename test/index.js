@@ -107,6 +107,25 @@ test('svg', function (t) {
   })
 })
 
+test('xlink:href', function (t) {
+  t.plan(2)
+  var src = `var bel = require('bel')
+  var el = bel\`<use xlink:href='#cat'/>\``
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    browserField: false,
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.iferror(err, 'no error')
+    var result = src.toString()
+    var match = result.indexOf('setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#cat")') !== -1
+    t.ok(match, 'created namespaced xlink:href attribute')
+    t.end()
+  })
+})
+
 test('choo and friends', function (t) {
   t.plan(3)
   var src = `const choo = require('choo')
