@@ -99,9 +99,9 @@ function processNode (node) {
     var elname = VARNAME + tagCount
     tagCount++
     if (namespace) {
-      res.push(`var ${elname} = document.createElementNS(${JSON.stringify(namespace)}, ${JSON.stringify(tag)})`)
+      res.push('var ' + elname + ' = document.createElementNS(' + JSON.stringify(namespace) + ', ' + JSON.stringify(tag) + ')')
     } else {
-      res.push(`var ${elname} = document.createElement(${JSON.stringify(tag)})`)
+      res.push('var ' + elname + ' = document.createElement(' + JSON.stringify(tag) + ')')
     }
 
     // If adding onload events
@@ -113,21 +113,16 @@ function processNode (node) {
       var elementIdentifier = JSON.stringify('o' + onloadElementId)
       onloadElementId += 1
       if (onloadParts && onloadParts[0].arg !== '') {
-        onloadCode = `args[${argCount}](${elname})`
+        onloadCode = 'args[' + argCount + '](' + elname + ')'
         resultArgs.push(onloadParts[0].arg)
         argCount++
       }
       if (onunloadParts && onunloadParts[0].arg !== '') {
-        onunloadCode = `args[${argCount}](${elname})`
+        onunloadCode = 'args[' + argCount + '](' + elname + ')'
         resultArgs.push(onunloadParts[0].arg)
         argCount++
       }
-      res.push(`var args = arguments
-      onload(${elname}, function bel_onload () {
-        ${onloadCode}
-      }, function bel_onunload () {
-        ${onunloadCode}
-      }, ${elementIdentifier})`)
+      res.push('var args = arguments\n      onload(' + elname + ', function bel_onload () {\n        ' + onloadCode + '\n      }, function bel_onunload () {\n        ' + onunloadCode + '\n      }, ' + elementIdentifier + ')')
       needsOnLoad = true
       delete props.onload
       delete props.onunload
@@ -147,9 +142,9 @@ function processNode (node) {
       if (BOOL_PROPS[key]) {
         if (val.slice(0, 9) === 'arguments') {
           if (namespace) {
-            res.push(`if (${val}) ${to}.setAttributeNS(null, ${p}, ${p})`)
+            res.push('if (' + val + ') ' + to + '.setAttributeNS(null, ' + p + ', ' + p + ')')
           } else {
-            res.push(`if (${val}) ${to}.setAttribute(${p}, ${p})`)
+            res.push('if (' + val + ') ' + to + '.setAttribute(' + p + ', ' + p + ')')
           }
           return
         } else {
@@ -158,14 +153,14 @@ function processNode (node) {
         }
       }
       if (key.slice(0, 2) === 'on') {
-        res.push(`${to}[${p}] = ${val}`)
+        res.push(to + '[' + p + '] = ' + val)
       } else {
         if (key === 'xlink:href') {
-          res.push(`${to}.setAttributeNS(${XLINKNS}, ${p}, ${val})`)
+          res.push(to + '.setAttributeNS(' + XLINKNS + ', ' + p + ', ' + val + ')')
         } else if (namespace) {
-          res.push(`${to}.setAttributeNS(null, ${p}, ${val})`)
+          res.push(to + '.setAttributeNS(null, ' + p + ', ' + val + ')')
         } else {
-          res.push(`${to}.setAttribute(${p}, ${val})`)
+          res.push(to + '.setAttribute(' + p + ', ' + val + ')')
         }
       }
     }
@@ -180,7 +175,7 @@ function processNode (node) {
           if (src.arg) {
             if (index > 0) val += ' + '
             if (src.before) val += JSON.stringify(src.before) + ' + '
-            val += `arguments[${argCount}]`
+            val += 'arguments[' + argCount + ']'
             if (src.after) val += ' + ' + JSON.stringify(src.after)
             resultArgs.push(src.arg)
             argCount++
@@ -205,7 +200,7 @@ function processNode (node) {
             childs.push(src.name)
           }
           if (src.arg) {
-            var argname = `arguments[${argCount}]`
+            var argname = 'arguments[' + argCount + ']'
             resultArgs.push(src.arg)
             argCount++
             childs.push(argname)
@@ -215,7 +210,7 @@ function processNode (node) {
         }
       })
       if (childs.length > 0) {
-        res.push(`ac(${elname}, [${childs.join(',')}])`)
+        res.push('ac(' + elname + ', [' + childs.join(',') + '])')
       }
     }
 
@@ -231,16 +226,9 @@ function processNode (node) {
   if (src && src[0].src) {
     var params = resultArgs.join(',')
     // TODO: This should use the on-load version of choo/yo-yo/bel
-    node.parent.update(`(function () {
-      ${needsOnLoad ? `var onload = require('${require.resolve('on-load')
-        .replace(/\\/g, '\\\\') // fix Windows paths
-      }')` : ''}
-      var ac = require('${path.resolve(__dirname, 'lib', 'appendChild.js')
-        .replace(/\\/g, '\\\\') // fix Windows paths
-      }')
-      ${src[0].src}
-      return ${src[0].name}
-    }(${params}))`)
+    node.parent.update('(function () {\n      ' + (needsOnLoad ? 'var onload = require(\'' + require.resolve('on-load').replace(/\\/g, '\\\\') + // fix Windows paths
+    '\')' : '') + '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + // fix Windows paths
+    '\')\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
 }
 
