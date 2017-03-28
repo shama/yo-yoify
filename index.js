@@ -52,7 +52,7 @@ module.exports = function yoYoify (file, opts) {
     var src = Buffer.concat(bufs).toString('utf8')
     var res
     try {
-      res = falafel(src, { ecmaVersion: 6 }, walk).toString()
+      res = falafel(src, { ecmaVersion: 6, allowImportExportEverywhere: true }, walk).toString()
     } catch (err) {
       return cb(err)
     }
