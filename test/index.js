@@ -7,7 +7,7 @@ var FIXTURE = path.join(__dirname, 'fixture.js')
 
 test('works', function (t) {
   t.plan(4)
-  var src = 'var bel = require(\'bel\')\n  module.exports = function (data) {\n    var className = \'test\'\n    return bel`<div class="${className}">\n      <h1>${data}</h1>\n    </div>`\n  }'
+  var src = 'var bel = require(\'bel\')\n  module.exports = function (data) {\n    var className = \'test\'\n    return bel`<div class="${className}">\n      <h1>${data}</h1>\n    </div>`\n  }' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -26,7 +26,7 @@ test('works', function (t) {
 
 test('strings + template expressions', function (t) {
   t.plan(2)
-  var src = 'var bel = require(\'bel\')\n  var className = \'test\'\n  var el = bel`<div class="before ${className} after"><div>`'
+  var src = 'var bel = require(\'bel\')\n  var className = \'test\'\n  var el = bel`<div class="before ${className} after"><div>`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -43,7 +43,7 @@ test('strings + template expressions', function (t) {
 
 test('append children in the correct order', function (t) {
   t.plan(2)
-  var src = 'var bel = require(\'bel\')\n  var el = bel`<div>This is a <a href="#">test</a> to ensure <strong>strings</strong> get appended in the correct order.</div>`'
+  var src = 'var bel = require(\'bel\')\n  var el = bel`<div>This is a <a href="#">test</a> to ensure <strong>strings</strong> get appended in the correct order.</div>`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -61,7 +61,7 @@ test('append children in the correct order', function (t) {
 
 test('multiple values on single attribute', function (t) {
   t.plan(4)
-  var src = 'var bel = require(\'bel\')\n  var a = \'testa\'\n  var b = \'testb\'\n  bel`<div class="${a} ${b}">`'
+  var src = 'var bel = require(\'bel\')\n  var a = \'testa\'\n  var b = \'testb\'\n  bel`<div class="${a} ${b}">`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     transform: path.join(__dirname, '..')
@@ -79,7 +79,7 @@ test('multiple values on single attribute', function (t) {
 
 test('svg', function (t) {
   t.plan(2)
-  var src = 'var bel = require(\'bel\')\n  var el = bel`<svg><line /></svg>`'
+  var src = 'var bel = require(\'bel\')\n  var el = bel`<svg><line /></svg>`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -96,7 +96,7 @@ test('svg', function (t) {
 
 test('xlink:href', function (t) {
   t.plan(2)
-  var src = 'var bel = require(\'bel\')\n  var el = bel`<use xlink:href=\'#cat\'/>`'
+  var src = 'var bel = require(\'bel\')\n  var el = bel`<use xlink:href=\'#cat\'/>`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -114,7 +114,7 @@ test('xlink:href', function (t) {
 
 test('choo and friends', function (t) {
   t.plan(3)
-  var src = 'const choo = require(\'choo\')\n  const bel = require(\'bel\')\n  const el1 = choo.view`<button>choo choo</button>`\n  const el2 = bel`<button>bel bel</button>`'
+  var src = 'const choo = require(\'choo\')\n  const bel = require(\'bel\')\n  const el1 = choo.view`<button>choo choo</button>`\n  const el2 = bel`<button>bel bel</button>`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     transform: path.join(__dirname, '..')
@@ -130,7 +130,7 @@ test('choo and friends', function (t) {
 })
 
 test('emits error for syntax error', function (t) {
-  var src = 'var bel = require(\'bel\')\n  module.exports = function (data) {\n    var className = (\'test\' + ) // <--- HERE\'S A SYNTAX ERROR\n    return bel`<div class="${className}">\n      <h1>${data}</h1>\n    </div>`\n  }'
+  var src = 'var bel = require(\'bel\')\n  module.exports = function (data) {\n    var className = (\'test\' + ) // <--- HERE\'S A SYNTAX ERROR\n    return bel`<div class="${className}">\n      <h1>${data}</h1>\n    </div>`\n  }' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     browserField: false,
@@ -144,7 +144,7 @@ test('emits error for syntax error', function (t) {
 
 test('onload/onunload', function (t) {
   t.plan(4)
-  var src = 'var bel = require(\'bel\')\n  var el = bel`<div onload=${function (e) {\n    console.log(\'onload\', e)\n  }} onunload=${function (e) {\n    console.log(\'onunload\', e)\n  }}>bel</div>`'
+  var src = 'var bel = require(\'bel\')\n  var el = bel`<div onload=${function (e) {\n    console.log(\'onload\', e)\n  }} onunload=${function (e) {\n    console.log(\'onunload\', e)\n  }}>bel</div>`' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)
   var b = browserify(FIXTURE, {
     transform: path.join(__dirname, '..')
@@ -156,6 +156,20 @@ test('onload/onunload', function (t) {
     t.ok(result.indexOf('onload(bel0, function bel_onload () {' !== -1), 'adds onload event to element')
     t.ok(result.indexOf('function bel_onunload () {' !== -1), 'adds onunload event to element')
     t.ok(result.indexOf(', "o0")' !== -1), 'it identified the element')
+    t.end()
+  })
+})
+
+test.skip('works with newer js', function (t) {
+  t.plan(1)
+  var src = 'const bel = require(\'bel\')\n async function whatever() {\n return bel`<div>yep</div>`\n }' // eslint-disable-line
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
     t.end()
   })
 })

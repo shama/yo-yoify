@@ -71,7 +71,7 @@ module.exports = function yoYoify (file, opts) {
     }
 
     if (node.type === 'TemplateLiteral' && node.parent.tag) {
-      var name = node.parent.tag.name || node.parent.tag.object && node.parent.tag.object.name
+      var name = node.parent.tag.name || (node.parent.tag.object && node.parent.tag.object.name)
       if (viewVariables.indexOf(name) !== -1) {
         processNode(node)
       }
@@ -129,6 +129,7 @@ function processNode (node) {
     }
 
     function addAttr (to, key, val) {
+      var p
       // Normalize className
       if (key.toLowerCase() === 'classname') {
         key = 'class'
@@ -137,7 +138,7 @@ function processNode (node) {
       if (p === 'htmlFor') {
         p = 'for'
       }
-      var p = JSON.stringify(key)
+      p = JSON.stringify(key)
       // If a property is boolean, set itself to the key
       if (BOOL_PROPS[key]) {
         if (val.slice(0, 9) === 'arguments') {
