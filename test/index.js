@@ -160,7 +160,7 @@ test('onload/onunload', function (t) {
   })
 })
 
-test.skip('works with newer js', function (t) {
+test('works with newer js', function (t) {
   t.plan(1)
   var src = 'const bel = require(\'bel\')\n async function whatever() {\n return bel`<div>yep</div>`\n }' // eslint-disable-line
   fs.writeFileSync(FIXTURE, src)

@@ -2,6 +2,7 @@ var path = require('path')
 var falafel = require('falafel')
 var through = require('through2')
 var hyperx = require('hyperx')
+var acorn = require('acorn')
 
 var SUPPORTED_VIEWS = ['bel', 'yo-yo', 'choo', 'choo/html']
 var DELIM = '~!@|@|@!~'
@@ -52,7 +53,7 @@ module.exports = function yoYoify (file, opts) {
     var src = Buffer.concat(bufs).toString('utf8')
     var res
     try {
-      res = falafel(src, { ecmaVersion: 6 }, walk).toString()
+      res = falafel(src, { ecmaVersion: 8, parser: acorn }, walk).toString()
     } catch (err) {
       return cb(err)
     }
