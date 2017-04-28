@@ -130,23 +130,21 @@ function processNode (node) {
     }
 
     function addAttr (to, key, val) {
-      var p
       // Normalize className
-      if (key.toLowerCase() === 'classname') {
-        key = 'class'
+      if (key.toLowerCase() === '"classname"') {
+        key = '"class"'
       }
       // The for attribute gets transformed to htmlFor, but we just set as for
-      if (p === 'htmlFor') {
-        p = 'for'
+      if (key === '"htmlFor"') {
+        key = '"for"'
       }
-      p = JSON.stringify(key)
       // If a property is boolean, set itself to the key
-      if (BOOL_PROPS[key]) {
+      if (BOOL_PROPS[key.slice(1, -1)]) {
         if (val.slice(0, 9) === 'arguments') {
           if (namespace) {
-            res.push('if (' + val + ') ' + to + '.setAttributeNS(null, ' + p + ', ' + p + ')')
+            res.push('if (' + val + ' && ' + key + ') ' + to + '.setAttributeNS(null, ' + key + ', ' + key + ')')
           } else {
-            res.push('if (' + val + ') ' + to + '.setAttribute(' + p + ', ' + p + ')')
+            res.push('if (' + val + ' && ' + key + ') ' + to + '.setAttribute(' + key + ', ' + key + ')')
           }
           return
         } else {
@@ -154,15 +152,19 @@ function processNode (node) {
           else if (val === 'false') return
         }
       }
-      if (key.slice(0, 2) === 'on') {
-        res.push(to + '[' + p + '] = ' + val)
+      if (key.slice(1, 3) === 'on') {
+        res.push(to + '[' + key + '] = ' + val)
       } else {
-        if (key === 'xlink:href') {
-          res.push(to + '.setAttributeNS(' + XLINKNS + ', ' + p + ', ' + val + ')')
+        if (key === '"xlink:href"') {
+          res.push(to + '.setAttributeNS(' + XLINKNS + ', ' + key + ', ' + val + ')')
+        } else if (namespace && key.slice(0, 1) === '"') {
+          res.push(to + '.setAttributeNS(null, ' + key + ', ' + val + ')')
         } else if (namespace) {
-          res.push(to + '.setAttributeNS(null, ' + p + ', ' + val + ')')
+          res.push('if (' + key + ') ' + to + '.setAttributeNS(null, ' + key + ', ' + val + ')')
+        } else if (key.slice(0, 1) === '"') {
+          res.push(to + '.setAttribute(' + key + ', ' + val + ')')
         } else {
-          res.push(to + '.setAttribute(' + p + ', ' + val + ')')
+          res.push('if (' + key + ') ' + to + '.setAttribute(' + key + ', ' + val + ')')
         }
       }
     }
@@ -170,9 +172,11 @@ function processNode (node) {
     // Add properties to element
     Object.keys(props).forEach(function (key) {
       var prop = props[key]
+      var ksrcs = getSourceParts(key)
       var srcs = getSourceParts(prop)
+      var k, val
       if (srcs) {
-        var val = ''
+        val = ''
         srcs.forEach(function (src, index) {
           if (src.arg) {
             if (index > 0) val += ' + '
@@ -183,10 +187,25 @@ function processNode (node) {
             argCount++
           }
         })
-        addAttr(elname, key, val)
       } else {
-        addAttr(elname, key, JSON.stringify(prop))
+        val = JSON.stringify(prop)
       }
+      if (ksrcs) {
+        k = ''
+        ksrcs.forEach(function (src, index) {
+          if (src.arg) {
+            if (index > 0) val += ' + '
+            if (src.before) val += JSON.stringify(src.before) + ' + '
+            k += 'arguments[' + argCount + ']'
+            if (src.after) k += ' + ' + JSON.stringify(src.after)
+            resultArgs.push(src.arg)
+            argCount++
+          }
+        })
+      } else {
+        k = JSON.stringify(key)
+      }
+      addAttr(elname, k, val)
     })
 
     if (Array.isArray(children)) {
