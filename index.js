@@ -136,8 +136,8 @@ function processNode (node) {
         key = 'class'
       }
       // The for attribute gets transformed to htmlFor, but we just set as for
-      if (p === 'htmlFor') {
-        p = 'for'
+      if (key === 'htmlFor') {
+        key = 'for'
       }
       p = JSON.stringify(key)
       // If a property is boolean, set itself to the key
