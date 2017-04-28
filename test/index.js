@@ -173,3 +173,17 @@ test('works with newer js', function (t) {
     t.end()
   })
 })
+
+test('boolean attribute expression', function (t) {
+  t.plan(1)
+  var src = 'const bel = require(\'bel\')\n async function whatever() {\nvar b = "disabled"\nreturn bel`<input type="text" ${b}>`\n }' // eslint-disable-line
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    t.end()
+  })
+})
