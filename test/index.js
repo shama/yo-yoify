@@ -173,3 +173,20 @@ test('works with newer js', function (t) {
     t.end()
   })
 })
+
+test('for attribute', function (t) {
+  t.plan(2)
+  var src = 'var bel = require(\'bel\')\n  var el = bel`<form><label for="test">Test</label><input id="test"></form>`' // eslint-disable-line
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.iferror(err, 'no error')
+    var result = src.toString()
+    var match = result.indexOf('setAttribute("for", "test")') !== -1
+    t.ok(match, 'created for attribute')
+    t.end()
+  })
+})
