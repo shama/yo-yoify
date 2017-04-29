@@ -49,6 +49,10 @@ var element = (function () {
 
 Which means, way better performance and compatibility with older browsers.
 
+# see also
+
+- [babel-plugin-yo-yoify](https://www.npmjs.com/package/babel-plugin-yo-yoify) — yo-yoify as a Babel transform, works with any build setup that supports Babel
+
 # license
 (c) 2016 Kyle Robinson Young. MIT License
 
