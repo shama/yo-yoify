@@ -142,24 +142,6 @@ test('emits error for syntax error', function (t) {
   })
 })
 
-test('onload/onunload', function (t) {
-  t.plan(4)
-  var src = 'var bel = require(\'bel\')\n  var el = bel`<div onload=${function (e) {\n    console.log(\'onload\', e)\n  }} onunload=${function (e) {\n    console.log(\'onunload\', e)\n  }}>bel</div>`' // eslint-disable-line
-  fs.writeFileSync(FIXTURE, src)
-  var b = browserify(FIXTURE, {
-    transform: path.join(__dirname, '..')
-  })
-  b.bundle(function (err, src) {
-    fs.unlinkSync(FIXTURE)
-    t.ifError(err, 'no error')
-    var result = src.toString()
-    t.ok(result.indexOf('onload(bel0, function bel_onload () {' !== -1), 'adds onload event to element')
-    t.ok(result.indexOf('function bel_onunload () {' !== -1), 'adds onunload event to element')
-    t.ok(result.indexOf(', "o0")' !== -1), 'it identified the element')
-    t.end()
-  })
-})
-
 test('works with newer js', function (t) {
   t.plan(1)
   var src = 'const bel = require(\'bel\')\n async function whatever() {\n return bel`<div>yep</div>`\n }' // eslint-disable-line
