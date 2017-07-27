@@ -1,4 +1,3 @@
-var path = require('path')
 var falafel = require('falafel')
 var through = require('through2')
 var hyperx = require('hyperx')
@@ -222,8 +221,7 @@ function processNode (node) {
     var params = resultArgs.join(',')
 
     node.parent.update('(function () {\n      ' +
-      '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + // fix Windows paths
-    '\')\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
+      '\n      var ac = require("yo-yoify-append-child")\n' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
 }
 
