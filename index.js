@@ -37,6 +37,7 @@ var SVG_TAGS = [
   'set', 'stop', 'switch', 'symbol', 'text', 'textPath', 'title', 'tref',
   'tspan', 'use', 'view', 'vkern'
 ]
+var onloadElementId = 0
 
 module.exports = function yoYoify (file, opts) {
   if (/\.json$/.test(file)) return through()
@@ -80,6 +81,7 @@ module.exports = function yoYoify (file, opts) {
 
 function processNode (node) {
   var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
+  var needsOnLoad = false
 
   var resultArgs = []
   var argCount = 0
@@ -100,6 +102,30 @@ function processNode (node) {
       res.push('var ' + elname + ' = document.createElementNS(' + JSON.stringify(namespace) + ', ' + JSON.stringify(tag) + ')')
     } else {
       res.push('var ' + elname + ' = document.createElement(' + JSON.stringify(tag) + ')')
+    }
+
+    // If adding onload events
+    if (props.onload || props.onunload) {
+      var onloadParts = getSourceParts(props.onload)
+      var onunloadParts = getSourceParts(props.onunload)
+      var onloadCode = ''
+      var onunloadCode = ''
+      var elementIdentifier = JSON.stringify('o' + onloadElementId)
+      onloadElementId += 1
+      if (onloadParts && onloadParts[0].arg !== '') {
+        onloadCode = 'args[' + argCount + '](' + elname + ')'
+        resultArgs.push(onloadParts[0].arg)
+        argCount++
+      }
+      if (onunloadParts && onunloadParts[0].arg !== '') {
+        onunloadCode = 'args[' + argCount + '](' + elname + ')'
+        resultArgs.push(onunloadParts[0].arg)
+        argCount++
+      }
+      res.push('var args = arguments\n      onload(' + elname + ', function bel_onload () {\n        ' + onloadCode + '\n      }, function bel_onunload () {\n        ' + onunloadCode + '\n      }, ' + elementIdentifier + ')')
+      needsOnLoad = true
+      delete props.onload
+      delete props.onunload
     }
 
     function addAttr (to, key, val) {
@@ -219,9 +245,7 @@ function processNode (node) {
   var src = getSourceParts(res)
   if (src && src[0].src) {
     var params = resultArgs.join(',')
-
-    node.parent.update('(function () {\n      ' +
-      '\n      var ac = require("yo-yoify-append-child")\n' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
+    node.parent.update('(function () {\n      ' + (needsOnLoad ? 'var onload = require(\'on-load\')' : '') + '\n      var ac = require(\'yo-yoify-append-child\')\n' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
 }
 
