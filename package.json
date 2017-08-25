@@ -35,7 +35,8 @@
     "falafel": "^2.0.0",
     "hyperx": "^2.0.3",
     "on-load": "^3.2.0",
-    "through2": "^2.0.1"
+    "through2": "^2.0.1",
+    "yo-yoify-append-child": "^1.0.0"
   },
   "devDependencies": {
     "bel": "^4.3.2",
