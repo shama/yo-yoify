@@ -138,7 +138,15 @@ function processNode (node) {
         } else if (key.slice(0, 1) === '"') {
           res.push(to + '.setAttribute(' + key + ', ' + val + ')')
         } else {
-          res.push('if (' + key + ') ' + to + '.setAttribute(' + key + ', ' + val + ')')
+          res.push('if (' + key + ' && ' + key + ' === Object(' + key + ')) {' +
+            '\n  var attributes = ' + key +
+            '\n  Object.keys(attributes).forEach(function (key) {' +
+            '\n    var val = attributes[key]' +
+            '\n    if (key.toLowerCase() === "classname") { key = "class" }' +
+            '\n    ' + to + '.setAttribute(key, val)' +
+            '\n  })' +
+            '\n  } else if (' + key + ') ' + to + '.setAttribute(' + key + ', ' + val + ')'
+          )
         }
       }
     }
