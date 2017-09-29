@@ -138,7 +138,7 @@ function processNode (node) {
         } else if (key.slice(0, 1) === '"') {
           res.push(to + '.setAttribute(' + key + ', ' + val + ')')
         } else {
-          res.push('if (' + key + ') ' + to + '.setAttribute(' + key + ', ' + val + ')')
+          res.push('sa(' + to + ', ' + key + ', ' + val + ')')
         }
       }
     }
@@ -222,8 +222,9 @@ function processNode (node) {
     var params = resultArgs.join(',')
 
     node.parent.update('(function () {\n      ' +
-      '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + // fix Windows paths
-    '\')\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
+      '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
+      '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
+      '\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
 }
 

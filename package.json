@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "budo index.js",
-    "test": "standard && node test/index.js"
+    "test": "standard && node test/index.js && browserify -t ./index.js test/browser.js | tape-run"
   },
   "repository": {
     "type": "git",
@@ -43,6 +43,7 @@
     "choo": "^5.0.4",
     "standard": "^9.0.2",
     "tape": "^4.5.1",
+    "tape-run": "^3.0.0",
     "yo-yo": "^1.2.1"
   }
 }
