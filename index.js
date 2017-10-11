@@ -41,6 +41,7 @@ var SVG_TAGS = [
 
 module.exports = function yoYoify (file, opts) {
   if (/\.json$/.test(file)) return through()
+
   var bufs = []
   var viewVariables = []
   return through(write, end)
@@ -222,7 +223,7 @@ function processNode (node) {
     var params = resultArgs.join(',')
 
     node.parent.update('(function () {\n      ' +
-      '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
+      '\n      var ac = require(\'bel/appendChild\')' +
       '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
       '\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
