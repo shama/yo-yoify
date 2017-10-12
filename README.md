@@ -23,6 +23,9 @@ When using Browserify, use as a global transform:
 browserify entry.js -g yo-yoify -o bundle.js
 ```
 
+Also make sure to install bel v5.1.3 or up as a direct dependency. Its
+`bel/appendChild` export is used in transformed output.
+
 ## how this works
 
 `yo-yo` and `bel`, without this transform, pass template literals to `hyperx`.

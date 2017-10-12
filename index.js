@@ -5,6 +5,8 @@ var hyperx = require('hyperx')
 var acorn = require('acorn')
 
 var SUPPORTED_VIEWS = ['bel', 'yo-yo', 'choo', 'choo/html']
+var APPEND_CHILD = require.resolve('bel/appendChild')
+var SET_ATTRIBUTE = require.resolve('./lib/setAttribute')
 var DELIM = '~!@|@|@!~'
 var VARNAME = 'bel'
 var SVGNS = 'http://www.w3.org/2000/svg'
@@ -41,6 +43,7 @@ var SVG_TAGS = [
 
 module.exports = function yoYoify (file, opts) {
   if (/\.json$/.test(file)) return through()
+
   var bufs = []
   var viewVariables = []
   return through(write, end)
@@ -73,13 +76,13 @@ module.exports = function yoYoify (file, opts) {
     if (node.type === 'TemplateLiteral' && node.parent.tag) {
       var name = node.parent.tag.name || (node.parent.tag.object && node.parent.tag.object.name)
       if (viewVariables.indexOf(name) !== -1) {
-        processNode(node)
+        processNode(node, path.dirname(file))
       }
     }
   }
 }
 
-function processNode (node) {
+function processNode (node, basedir) {
   var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
 
   var resultArgs = []
@@ -222,8 +225,8 @@ function processNode (node) {
     var params = resultArgs.join(',')
 
     node.parent.update('(function () {\n      ' +
-      '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
-      '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
+      '\n      var ac = require(' + JSON.stringify(path.relative(basedir, APPEND_CHILD).replace(/\\/g, '\\\\')) + ')' +
+      '\n      var sa = require(' + JSON.stringify(path.relative(basedir, SET_ATTRIBUTE).replace(/\\/g, '\\\\')) + ')' +
       '\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
 }
