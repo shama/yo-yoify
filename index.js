@@ -61,8 +61,8 @@ module.exports = function yoYoify (file, opts) {
   }
   function walk (node) {
     if (isSupportedView(node)) {
-      if (node.arguments[0].value === 'bel') {
-        // Only 0 out bel as yo-yo still needs yo.update()
+      if (node.arguments[0].value === 'bel' || node.arguments[0].value === 'choo/html') {
+        // bel and choo/html have no other exports that may be used
         node.update('{}')
       }
       if (node.parent.type === 'VariableDeclarator') {
