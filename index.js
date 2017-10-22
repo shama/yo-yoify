@@ -52,6 +52,16 @@ module.exports = function yoYoify (file, opts) {
   }
   function end (cb) {
     var src = Buffer.concat(bufs).toString('utf8')
+
+    var containsView = SUPPORTED_VIEWS.some(function (m) {
+      return src.indexOf(m) !== -1
+    })
+    if (!containsView) {
+      this.push(src)
+      this.push(null)
+      return
+    }
+
     var res
     try {
       res = transformAst(src, { ecmaVersion: 8, parser: acorn }, walk)
