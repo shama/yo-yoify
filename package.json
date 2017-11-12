@@ -38,8 +38,12 @@
     "through2": "^2.0.1"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-plugin-transform-es2015-template-literals": "^6.22.0",
+    "babelify": "^8.0.0",
     "bel": "^4.3.2",
     "browserify": "^14.1.0",
+    "bubleify": "^1.0.0",
     "choo": "^5.0.4",
     "standard": "^9.0.2",
     "tape": "^4.5.1",
