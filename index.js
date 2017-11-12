@@ -43,6 +43,7 @@ module.exports = function yoYoify (file, opts) {
   if (/\.json$/.test(file)) return through()
   var bufs = []
   var viewVariables = []
+  var babelTemplateObjects = Object.create(null)
   return through(write, end)
   function write (buf, enc, next) {
     bufs.push(buf)
@@ -70,18 +71,47 @@ module.exports = function yoYoify (file, opts) {
       }
     }
 
+    if (node.type === 'VariableDeclarator' && node.init && isBabelTemplateDefinition(node.init)) {
+      // Babel generates helper calls like
+      //    _taggedTemplateLiteral(["<div","/>"], ["<div","/>"])
+      // The first parameter is the `cooked` template literal parts, and the second parameter is the `raw`
+      // template literal parts.
+      // We just pick the cooked parts.
+      babelTemplateObjects[node.id.name] = node.init.arguments[0]
+    }
+
     if (node.type === 'TemplateLiteral' && node.parent.tag) {
       var name = node.parent.tag.name || (node.parent.tag.object && node.parent.tag.object.name)
       if (viewVariables.indexOf(name) !== -1) {
-        processNode(node)
+        processNode(node.parent, [ node.quasis.map(cooked) ].concat(node.expressions.map(expr)))
+      }
+    }
+    if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && viewVariables.indexOf(node.callee.name) !== -1) {
+      var template, expressions
+      if (node.arguments[0] && node.arguments[0].type === 'ArrayExpression') {
+        // Detect transpiled template strings like:
+        //    bel(["<div","/>"], {id: "test"})
+        // Emitted by Buble.
+        template = node.arguments[0].elements.map(function (part) { return part.value })
+        expressions = node.arguments.slice(1).map(expr)
+        processNode(node, [ template ].concat(expressions))
+      } else if (node.arguments[0] && node.arguments[0].type === 'Identifier') {
+        // Detect transpiled template strings like:
+        //    bel(_templateObject, {id: "test"})
+        // Emitted by Babel.
+        var templateObject = babelTemplateObjects[node.arguments[0].name]
+        template = templateObject.elements.map(function (part) { return part.value })
+        expressions = node.arguments.slice(1).map(expr)
+        processNode(node, [ template ].concat(expressions))
+
+        // Remove the _taggedTemplateLiteral helper call
+        templateObject.parent.update('0')
       }
     }
   }
 }
 
-function processNode (node) {
-  var args = [ node.quasis.map(cooked) ].concat(node.expressions.map(expr))
-
+function processNode (node, args) {
   var resultArgs = []
   var argCount = 0
   var tagCount = 0
@@ -221,7 +251,7 @@ function processNode (node) {
   if (src && src[0].src) {
     var params = resultArgs.join(',')
 
-    node.parent.update('(function () {\n      ' +
+    node.update('(function () {\n      ' +
       '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
       '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
       '\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
@@ -233,6 +263,11 @@ function isSupportedView (node) {
     node.callee && node.callee.name === 'require' &&
     node.arguments.length === 1 &&
     SUPPORTED_VIEWS.indexOf(node.arguments[0].value) !== -1)
+}
+
+function isBabelTemplateDefinition (node) {
+  return node.type === 'CallExpression' &&
+    node.callee.type === 'Identifier' && node.callee.name === '_taggedTemplateLiteral'
 }
 
 function cooked (node) { return node.value.cooked }
