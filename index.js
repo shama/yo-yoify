@@ -115,6 +115,10 @@ function processNode (node, args) {
   var resultArgs = []
   var argCount = 0
   var tagCount = 0
+
+  var needsAc = false
+  var needsSa = false
+
   var hx = hyperx(function (tag, props, children) {
     var res = []
 
@@ -168,6 +172,7 @@ function processNode (node, args) {
         } else if (key.slice(0, 1) === '"') {
           res.push(to + '.setAttribute(' + key + ', ' + val + ')')
         } else {
+          needsSa = true
           res.push('sa(' + to + ', ' + key + ', ' + val + ')')
         }
       }
@@ -235,6 +240,7 @@ function processNode (node, args) {
         }
       })
       if (childs.length > 0) {
+        needsAc = true
         res.push('ac(' + elname + ', [' + childs.join(',') + '])')
       }
     }
@@ -251,9 +257,9 @@ function processNode (node, args) {
   if (src && src[0].src) {
     var params = resultArgs.join(',')
 
-    node.update('(function () {\n      ' +
-      '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
-      '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' + // fix Windows paths
+    node.update('(function () {' +
+      (needsAc ? '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' : '') +
+      (needsSa ? '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' : '') +
       '\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')
   }
 }
