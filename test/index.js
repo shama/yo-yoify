@@ -220,3 +220,56 @@ test('buble-compiled template literals', function (t) {
     t.end()
   })
 })
+
+test('generates source maps in debug mode', function (t) {
+  t.plan(2)
+  fs.writeFileSync(FIXTURE, `
+    var html = require('bel')
+    var el = html\`<span>title</span>\`
+    html\`
+      <header>
+        <h2>\${el}</h2>
+      </header>
+    \`
+  `)
+
+  var b = browserify(FIXTURE, {
+    debug: true,
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err)
+    t.ok(src.indexOf('//# sourceMappingURL=') !== -1, 'has source map')
+    t.end()
+  })
+})
+
+test('accepts input source maps in debug mode', function (t) {
+  t.plan(2)
+  fs.writeFileSync(FIXTURE, `
+    var html = require('bel')
+    var el = html\`<span>title</span>\`
+    html\`
+      <header>
+        <h2>\${el}</h2>
+      </header>
+    \`
+  `)
+
+  var b = browserify(FIXTURE, {
+    debug: true,
+    transform: [
+      ['babelify', {
+        plugins: ['transform-es2015-template-literals']
+      }],
+      path.join(__dirname, '..')
+    ]
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err)
+    t.ok(src.indexOf('//# sourceMappingURL=') !== -1, 'has source map')
+    t.end()
+  })
+})
