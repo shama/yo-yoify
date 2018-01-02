@@ -1,5 +1,6 @@
 var path = require('path')
-var falafel = require('falafel')
+var convertSourceMap = require('convert-source-map')
+var transformAst = require('transform-ast')
 var through = require('through2')
 var hyperx = require('hyperx')
 var acorn = require('acorn')
@@ -53,7 +54,12 @@ module.exports = function yoYoify (file, opts) {
     var src = Buffer.concat(bufs).toString('utf8')
     var res
     try {
-      res = falafel(src, { ecmaVersion: 8, parser: acorn }, walk).toString()
+      res = transformAst(src, { ecmaVersion: 8, parser: acorn }, walk)
+      if (opts && opts._flags && opts._flags.debug) {
+        res = res.toString() + '\n' + convertSourceMap.fromObject(res.map).toComment() + '\n'
+      } else {
+        res = res.toString()
+      }
     } catch (err) {
       return cb(err)
     }
@@ -64,7 +70,7 @@ module.exports = function yoYoify (file, opts) {
     if (isSupportedView(node)) {
       if (node.arguments[0].value === 'bel' || node.arguments[0].value === 'choo/html') {
         // bel and choo/html have no other exports that may be used
-        node.update('{}')
+        node.edit.update('{}')
       }
       if (node.parent.type === 'VariableDeclarator') {
         viewVariables.push(node.parent.id.name)
@@ -105,7 +111,7 @@ module.exports = function yoYoify (file, opts) {
         processNode(node, [ template ].concat(expressions))
 
         // Remove the _taggedTemplateLiteral helper call
-        templateObject.parent.update('0')
+        templateObject.parent.edit.update('0')
       }
     }
   }
@@ -257,7 +263,7 @@ function processNode (node, args) {
   if (src && src[0].src) {
     var params = resultArgs.join(',')
 
-    node.update('(function () {' +
+    node.edit.update('(function () {' +
       (needsAc ? '\n      var ac = require(\'' + path.resolve(__dirname, 'lib', 'appendChild.js').replace(/\\/g, '\\\\') + '\')' : '') +
       (needsSa ? '\n      var sa = require(\'' + path.resolve(__dirname, 'lib', 'setAttribute.js').replace(/\\/g, '\\\\') + '\')' : '') +
       '\n      ' + src[0].src + '\n      return ' + src[0].name + '\n    }(' + params + '))')

@@ -32,10 +32,11 @@
   "homepage": "https://github.com/shama/yo-yoify",
   "dependencies": {
     "acorn": "^5.0.0",
-    "falafel": "^2.0.0",
+    "convert-source-map": "^1.5.1",
     "hyperx": "^2.0.3",
     "on-load": "^3.2.0",
-    "through2": "^2.0.1"
+    "through2": "^2.0.1",
+    "transform-ast": "^2.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
