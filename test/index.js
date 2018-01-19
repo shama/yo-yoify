@@ -77,6 +77,23 @@ test('multiple values on single attribute', function (t) {
   })
 })
 
+test('inline objects as attributes', function (t) {
+  t.plan(3)
+  var src = 'var bel = require(\'bel\')\n  var a = { foo: \'bar\'}\n  bel`<div ${a}>`' // eslint-disable-line
+  fs.writeFileSync(FIXTURE, src)
+  var b = browserify(FIXTURE, {
+    transform: path.join(__dirname, '..')
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err, 'no error')
+    var result = src.toString()
+    t.ok(result.indexOf('arguments[0]') !== -1, 'argument')
+    t.ok(result.indexOf('(foo)') !== -1, 'key correctly passed')
+    t.end()
+  })
+})
+
 test('svg', function (t) {
   t.plan(2)
   var src = 'var bel = require(\'bel\')\n  var el = bel`<svg><line /></svg>`' // eslint-disable-line
