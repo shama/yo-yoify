@@ -194,6 +194,32 @@ test('babel-compiled template literals', function (t) {
   })
 })
 
+test('loosely babel-compiled template literals', function (t) {
+  t.plan(3)
+  fs.writeFileSync(FIXTURE, `
+    var bel = require('bel')
+
+    bel\`<div class="whatever \${abc}">\${xyz}</div>\`
+  `)
+  var b = browserify(FIXTURE, {
+    transform: [
+      ['babelify', {
+        plugins: [
+          ['transform-es2015-template-literals', { loose: true }]
+        ]
+      }],
+      path.join(__dirname, '..')
+    ]
+  })
+  b.bundle(function (err, src) {
+    fs.unlinkSync(FIXTURE)
+    t.ifError(err)
+    t.ok(src.indexOf('document.createElement("div")') !== -1, 'created a tag')
+    t.ok(src.indexOf('<div') === -1, 'removed template literal parts values')
+    t.end()
+  })
+})
+
 test('buble-compiled template literals', function (t) {
   t.plan(2)
 

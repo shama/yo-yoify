@@ -279,7 +279,7 @@ function isSupportedView (node) {
 
 function isBabelTemplateDefinition (node) {
   return node.type === 'CallExpression' &&
-    node.callee.type === 'Identifier' && node.callee.name === '_taggedTemplateLiteral'
+    node.callee.type === 'Identifier' && /^_taggedTemplateLiteral(?:Loose)?$/.test(node.callee.name)
 }
 
 function cooked (node) { return node.value.cooked }
